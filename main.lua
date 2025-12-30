@@ -16,12 +16,13 @@ if not UIParent then UIParent = Player:WaitForChild("PlayerGui") end
 
 --================ THEME ==============================
 local Theme = {
-    Glass = Color3.fromRGB(30,30,40),
-    Sidebar = Color3.fromRGB(24,24,34),
-    Accent = Color3.fromRGB(120,180,255),
-    Text = Color3.fromRGB(240,240,240),
-    SubText = Color3.fromRGB(170,170,190),
-    Stroke = Color3.fromRGB(255,255,255)
+    Glass = Color3.fromRGB(28,30,38),
+    Sidebar = Color3.fromRGB(22,24,30),
+    Accent = Color3.fromRGB(140,200,255),
+    Text = Color3.fromRGB(245,245,248),
+    SubText = Color3.fromRGB(170,175,190),
+    Stroke = Color3.fromRGB(255,255,255),
+    Shadow = Color3.fromRGB(0,0,0)
 }
 
 --================ SCREEN GUI =========================
@@ -152,18 +153,52 @@ local function Button(parent,text)
     Instance.new("UICorner", B).CornerRadius = UDim.new(0,14)
 end
 
-local function Dropdown(parent,text)
-    local D = Instance.new("TextButton", parent)
-    D.Size = UDim2.new(1,-20,0,38)
-    D.Position = UDim2.new(0,10,0,10)
-    D.Text = text.." ▾"
-    D.TextColor3 = Theme.Text
-    D.TextSize = 14
-    D.BackgroundColor3 = Theme.Glass
-    D.BackgroundTransparency = 0.2
-    D.BorderSizePixel = 0
-    Instance.new("UICorner", D).CornerRadius = UDim.new(0,14)
+local function Dropdown(parent, title, options)
+    local Open = false
+
+    local Wrap = Instance.new("Frame", parent)
+    Wrap.Size = UDim2.new(1,-20,0,38)
+    Wrap.BackgroundTransparency = 1
+    Wrap.AutomaticSize = Enum.AutomaticSize.Y
+
+    local Btn = Instance.new("TextButton", Wrap)
+    Btn.Size = UDim2.new(1,0,0,38)
+    Btn.Text = title.." ▾"
+    Btn.TextSize = 14
+    Btn.TextColor3 = Theme.Text
+    Btn.BackgroundColor3 = Theme.Glass
+    Btn.BackgroundTransparency = 0.3
+    Btn.BorderSizePixel = 0
+    Btn.TextXAlignment = Enum.TextXAlignment.Left
+    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0,14)
+
+    local Body = Instance.new("Frame", Wrap)
+    Body.Size = UDim2.new(1,0,0,0)
+    Body.BackgroundTransparency = 1
+    Body.ClipsDescendants = true
+
+    local BL = Instance.new("UIListLayout", Body)
+    BL.Padding = UDim.new(0,6)
+
+    for _,opt in ipairs(options) do
+        local O = Instance.new("TextButton", Body)
+        O.Size = UDim2.new(1,0,0,30)
+        O.Text = "   "..opt
+        O.TextSize = 13
+        O.TextXAlignment = Enum.TextXAlignment.Left
+        O.BackgroundTransparency = 1
+        O.TextColor3 = Theme.SubText
+    end
+
+    Btn.MouseButton1Click:Connect(function()
+        Open = not Open
+        Tween(Body, AnimSlow, {
+            Size = Open and UDim2.new(1,0,0,#options*36) or UDim2.new(1,0,0,0)
+        })
+        Btn.Text = title .. (Open and " ▴" or " ▾")
+    end)
 end
+
 
 local function Radio(parent,text)
     local R = Instance.new("TextButton", parent)
@@ -176,74 +211,103 @@ local function Radio(parent,text)
     R.TextXAlignment = Enum.TextXAlignment.Left
 end
 
+local function IOSToggle(parent, text)
+    local H = Instance.new("Frame", parent)
+    H.Size = UDim2.new(1,-20,0,34)
+    H.BackgroundTransparency = 1
+
+    local L = Instance.new("TextLabel", H)
+    L.Size = UDim2.new(1,-60,1,0)
+    L.BackgroundTransparency = 1
+    L.Text = text
+    L.TextColor3 = Theme.Text
+    L.TextXAlignment = Enum.TextXAlignment.Left
+    L.TextSize = 14
+
+    local Track = Instance.new("Frame", H)
+    Track.Size = UDim2.new(0,42,0,22)
+    Track.Position = UDim2.new(1,-42,0.5,-11)
+    Track.BackgroundColor3 = Color3.fromRGB(90,90,95)
+    Track.BorderSizePixel = 0
+    Instance.new("UICorner", Track).CornerRadius = UDim.new(1,0)
+
+    local Knob = Instance.new("Frame", Track)
+    Knob.Size = UDim2.new(0,18,0,18)
+    Knob.Position = UDim2.new(0,2,0.5,-9)
+    Knob.BackgroundColor3 = Color3.fromRGB(255,255,255)
+    Knob.BorderSizePixel = 0
+    Instance.new("UICorner", Knob).CornerRadius = UDim.new(1,0)
+
+    local On = false
+    Track.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then
+            On = not On
+            Tween(Track, AnimFast, {
+                BackgroundColor3 = On and Theme.Accent or Color3.fromRGB(90,90,95)
+            })
+            Tween(Knob, AnimFast, {
+                Position = On and UDim2.new(1,-20,0.5,-9) or UDim2.new(0,2,0.5,-9)
+            })
+        end
+    end)
+end
+
 --================ EXTENDABLE SUB MENU =================
-local function SubMenu(parent, titleText)
+local function SubMenu(parent, title)
     local Open = false
 
-    local Wrap = Instance.new("Frame", parent)
-    Wrap.Size = UDim2.new(1,0,0,48)
-    Wrap.BackgroundTransparency = 1
-    Wrap.AutomaticSize = Enum.AutomaticSize.Y
+    local Group = Instance.new("Frame", parent)
+    Group.Size = UDim2.new(1,0,0,48)
+    Group.BackgroundColor3 = Theme.Glass
+    Group.BackgroundTransparency = 0.35
+    Group.BorderSizePixel = 0
+    Group.ClipsDescendants = true
+    Instance.new("UICorner", Group).CornerRadius = UDim.new(0,18)
 
-    local Header = Instance.new("TextButton", Wrap)
-    Header.Size = UDim2.new(1,0,0,42)
-    Header.Text = "▸  "..titleText
+    local Shadow = Instance.new("UIStroke", Group)
+    Shadow.Color = Theme.Shadow
+    Shadow.Transparency = 0.85
+
+    local Header = Instance.new("TextButton", Group)
+    Header.Size = UDim2.new(1,-20,0,40)
+    Header.Position = UDim2.new(0,10,0,6)
+    Header.Text = "▸  "..title
     Header.TextSize = 15
+    Header.TextXAlignment = Enum.TextXAlignment.Left
     Header.TextColor3 = Theme.Text
-    Header.BackgroundColor3 = Theme.Glass
-    Header.BackgroundTransparency = 0.3
+    Header.BackgroundTransparency = 1
     Header.BorderSizePixel = 0
-    Header.AutoButtonColor = false
-    Instance.new("UICorner", Header).CornerRadius = UDim.new(0,14)
 
-    local Stroke = Instance.new("UIStroke", Header)
-    Stroke.Color = Theme.Stroke
-    Stroke.Transparency = 0.75
-
-    local Body = Instance.new("Frame", Wrap)
+    local Body = Instance.new("Frame", Group)
+    Body.Position = UDim2.new(0,10,0,50)
     Body.Size = UDim2.new(1,-20,0,0)
-    Body.Position = UDim2.new(0,10,0,48)
     Body.BackgroundTransparency = 1
-    Body.Visible = false
-    Body.AutomaticSize = Enum.AutomaticSize.Y
+    Body.ClipsDescendants = true
 
     local BL = Instance.new("UIListLayout", Body)
-    BL.Padding = UDim.new(0,8)
+    BL.Padding = UDim.new(0,10)
 
-    -- Dropdown dummy
-    Dropdown(Body, "Select Mode")
-
-    -- Radio ON/OFF
-    local RadioBtn = Instance.new("TextButton", Body)
-    RadioBtn.Size = UDim2.new(1,-20,0,30)
-    RadioBtn.Position = UDim2.new(0,10,0,0)
-    RadioBtn.Text = "◉  Enabled"
-    RadioBtn.TextColor3 = Theme.Text
-    RadioBtn.TextSize = 14
-    RadioBtn.BackgroundTransparency = 1
-    RadioBtn.TextXAlignment = Enum.TextXAlignment.Left
-
-    local State = true
-    RadioBtn.MouseButton1Click:Connect(function()
-        State = not State
-        RadioBtn.Text = (State and "◉  Enabled" or "○  Disabled")
-    end)
-
-    -- Action Button
-    Button(Body, "Execute")
+    Dropdown(Body, "Select Mode", {"Safe","Fast","Extreme"})
+    IOSToggle(Body, "Enable Feature")
+    Button(Body, "Apply")
 
     Header.MouseButton1Click:Connect(function()
         Open = not Open
-        Body.Visible = Open
-        Header.Text = (Open and "▾  " or "▸  ") .. titleText
+        Tween(Group, AnimSlow, {
+            Size = Open and UDim2.new(1,0,0,200) or UDim2.new(1,0,0,48)
+        })
+        Tween(Body, AnimSlow, {
+            Size = Open and UDim2.new(1,-20,0,140) or UDim2.new(1,-20,0,0)
+        })
+        Header.Text = (Open and "▾  " or "▸  ") .. title
     end)
-
-    return Wrap
 end
 
 --================ NAV BUTTON =========================
 local function Nav(icon,name)
     local B = Instance.new("TextButton", Sidebar)
+    B.TextXAlignment = Enum.TextXAlignment.Left
+    B.PaddingLeft = UDim.new(0,12)
     B.Size = UDim2.new(1,0,0,36)
     B.Text = icon.."  "..name
     B.TextSize = 14

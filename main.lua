@@ -192,7 +192,8 @@ local function IOSToggle(parent, text)
 end
 
 --================ SUB MENU ===========================
-local function SubMenu(parent, title)
+--================ SUB MENU ===========================
+local function SubMenu(parent, menuTitle, dropdownTitle, dropdownOptions)
     local Open = false
 
     local Group = Instance.new("Frame", parent)
@@ -203,16 +204,18 @@ local function SubMenu(parent, title)
     Group.ClipsDescendants = true
     Instance.new("UICorner", Group).CornerRadius = UDim.new(0,18)
 
+    -- Header SubMenu
     local Header = Instance.new("TextButton", Group)
     Header.Size = UDim2.new(1,-20,0,40)
     Header.Position = UDim2.new(0,10,0,6)
-    Header.Text = "▸  "..title
+    Header.Text = "▸  "..menuTitle
     Header.TextSize = 15
     Header.TextXAlignment = Enum.TextXAlignment.Left
     Header.TextColor3 = Theme.Text
     Header.BackgroundTransparency = 1
     Header.BorderSizePixel = 0
 
+    -- Body
     local Body = Instance.new("Frame", Group)
     Body.Position = UDim2.new(0,10,0,50)
     Body.Size = UDim2.new(1,-20,0,0)
@@ -222,16 +225,100 @@ local function SubMenu(parent, title)
     local BL = Instance.new("UIListLayout", Body)
     BL.Padding = UDim.new(0,10)
 
-    Button(Body, "Action Button")
-    IOSToggle(Body, "Enable Feature")
+    -- Judul di atas dropdown
+    local TitleLabel = Instance.new("TextLabel", Body)
+    TitleLabel.Size = UDim2.new(1,0,0,22)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Text = menuTitle
+    TitleLabel.TextSize = 14
+    TitleLabel.TextColor3 = Theme.Text
+    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
+    -- Dropdown dengan search
+    local function SearchableDropdown(parent, title, options)
+        local Open = false
+        local Wrap = Instance.new("Frame", parent)
+        Wrap.Size = UDim2.new(1,0,0,38)
+        Wrap.BackgroundTransparency = 1
+        Wrap.AutomaticSize = Enum.AutomaticSize.Y
+
+        local Btn = Instance.new("TextButton", Wrap)
+        Btn.Size = UDim2.new(1,0,0,38)
+        Btn.Text = title.." ▾"
+        Btn.TextSize = 14
+        Btn.TextColor3 = Theme.Text
+        Btn.BackgroundColor3 = Theme.Glass
+        Btn.BackgroundTransparency = 0.3
+        Btn.BorderSizePixel = 0
+        Btn.TextXAlignment = Enum.TextXAlignment.Left
+        Instance.new("UICorner", Btn).CornerRadius = UDim.new(0,14)
+
+        local BodyDD = Instance.new("Frame", Wrap)
+        BodyDD.Size = UDim2.new(1,0,0,0)
+        BodyDD.BackgroundTransparency = 1
+        BodyDD.ClipsDescendants = true
+
+        local SearchBox = Instance.new("TextBox", BodyDD)
+        SearchBox.Size = UDim2.new(1,0,0,28)
+        SearchBox.PlaceholderText = "Search..."
+        SearchBox.Text = ""
+        SearchBox.TextSize = 13
+        SearchBox.BackgroundColor3 = Theme.Glass
+        SearchBox.BackgroundTransparency = 0.3
+        SearchBox.TextColor3 = Theme.Text
+        Instance.new("UICorner", SearchBox).CornerRadius = UDim.new(0,10)
+
+        local List = Instance.new("Frame", BodyDD)
+        List.Position = UDim2.new(0,0,0,30)
+        List.Size = UDim2.new(1,0,0,#options*30)
+        List.BackgroundTransparency = 1
+        List.ClipsDescendants = true
+
+        local LL = Instance.new("UIListLayout", List)
+        LL.Padding = UDim.new(0,2)
+
+        local items = {}
+        for _,opt in ipairs(options) do
+            local O = Instance.new("TextButton", List)
+            O.Size = UDim2.new(1,0,0,28)
+            O.Text = opt
+            O.TextSize = 13
+            O.TextXAlignment = Enum.TextXAlignment.Left
+            O.BackgroundTransparency = 1
+            O.TextColor3 = Theme.SubText
+            table.insert(items, O)
+        end
+
+        SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
+            local filter = SearchBox.Text:lower()
+            for _,item in pairs(items) do
+                item.Visible = item.Text:lower():find(filter) ~= nil
+            end
+        end)
+
+        Btn.MouseButton1Click:Connect(function()
+            Open = not Open
+            Tween(BodyDD, AnimSlow, {
+                Size = Open and UDim2.new(1,0,0,28 + #options*30) or UDim2.new(1,0,0,0)
+            })
+            Btn.Text = title .. (Open and " ▴" or " ▾")
+        end)
+    end
+
+    SearchableDropdown(Body, dropdownTitle, dropdownOptions)
+
+    -- Toggle & Button
+    IOSToggle(Body, "Enable Feature")
+    Button(Body, "Apply")
+
+    -- Expand/collapse main
     Header.MouseButton1Click:Connect(function()
         Open = not Open
-        local newHeight = Open and 160 or 48
-        local bodyHeight = Open and 100 or 0
+        local newHeight = Open and 220 or 48
+        local bodyHeight = Open and 160 or 0
         Tween(Group, AnimSlow, {Size = UDim2.new(1,0,0,newHeight)})
         Tween(Body, AnimSlow, {Size = UDim2.new(1,-20,0,bodyHeight)})
-        Header.Text = (Open and "▾  " or "▸  ")..title
+        Header.Text = (Open and "▾  " or "▸  ")..menuTitle
     end)
 end
 

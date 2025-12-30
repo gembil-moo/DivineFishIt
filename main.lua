@@ -5,20 +5,30 @@ if _G.DivineFishIOS then return end
 _G.DivineFishIOS = true
 
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
 local Player = Players.LocalPlayer
 local LOGO_ID = "rbxassetid://120294742064292"
 
---================ TWEEN ===============================
-local function Tween(o, info, prop)
-    if not o then return end
-    local t = TweenService:Create(o, info, prop)
+--================ TWEEN SERVICE (FIX ERROR) ===========
+local TweenService = game:GetService("TweenService")
+
+local function Tween(obj, info, props)
+    if not obj then return end
+    local t = TweenService:Create(obj, info, props)
     t:Play()
     return t
 end
 
-local AnimFast = TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-local AnimSlow = TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+local AnimFast = TweenInfo.new(
+    0.18,
+    Enum.EasingStyle.Quint,
+    Enum.EasingDirection.Out
+)
+
+local AnimSlow = TweenInfo.new(
+    0.28,
+    Enum.EasingStyle.Quint,
+    Enum.EasingDirection.Out
+)
 
 --================ UI PARENT ==========================
 local UIParent
@@ -49,10 +59,9 @@ Float.BackgroundColor3 = Theme.Glass
 Float.BackgroundTransparency = 0.25
 Float.BorderSizePixel = 0
 Instance.new("UICorner", Float).CornerRadius = UDim.new(1,0)
-
-local FloatStroke = Instance.new("UIStroke", Float)
-FloatStroke.Color = Theme.Stroke
-FloatStroke.Transparency = 0.6
+local FS = Instance.new("UIStroke", Float)
+FS.Color = Theme.Stroke
+FS.Transparency = 0.6
 
 local Logo = Instance.new("ImageLabel", Float)
 Logo.Size = UDim2.new(0.7,0,0.7,0)
@@ -71,9 +80,9 @@ Main.Active = true
 Main.Draggable = true
 
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0,20)
-local MainStroke = Instance.new("UIStroke", Main)
-MainStroke.Color = Theme.Stroke
-MainStroke.Transparency = 0.7
+local MS = Instance.new("UIStroke", Main)
+MS.Color = Theme.Stroke
+MS.Transparency = 0.7
 
 Float.InputBegan:Connect(function(i)
     if i.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -140,20 +149,114 @@ local function Page(name)
     Pages[name] = P
 end
 
+--================ COMPONENTS =========================
+local function Button(parent,text)
+    local B = Instance.new("TextButton", parent)
+    B.Size = UDim2.new(1,-20,0,38)
+    B.Position = UDim2.new(0,10,0,10)
+    B.Text = text
+    B.TextColor3 = Theme.Text
+    B.TextSize = 14
+    B.BackgroundColor3 = Theme.Accent
+    B.BorderSizePixel = 0
+    Instance.new("UICorner", B).CornerRadius = UDim.new(0,14)
+end
+
+local function IOSToggle(parent, text)
+    local H = Instance.new("Frame", parent)
+    H.Size = UDim2.new(1,-20,0,34)
+    H.BackgroundTransparency = 1
+
+    local L = Instance.new("TextLabel", H)
+    L.Size = UDim2.new(1,-60,1,0)
+    L.BackgroundTransparency = 1
+    L.Text = text
+    L.TextColor3 = Theme.Text
+    L.TextXAlignment = Enum.TextXAlignment.Left
+    L.TextSize = 14
+
+    local Track = Instance.new("Frame", H)
+    Track.Size = UDim2.new(0,42,0,22)
+    Track.Position = UDim2.new(1,-42,0.5,-11)
+    Track.BackgroundColor3 = Color3.fromRGB(90,90,95)
+    Track.BorderSizePixel = 0
+    Instance.new("UICorner", Track).CornerRadius = UDim.new(1,0)
+
+    local Knob = Instance.new("Frame", Track)
+    Knob.Size = UDim2.new(0,18,0,18)
+    Knob.Position = UDim2.new(0,2,0.5,-9)
+    Knob.BackgroundColor3 = Color3.fromRGB(255,255,255)
+    Knob.BorderSizePixel = 0
+    Instance.new("UICorner", Knob).CornerRadius = UDim.new(1,0)
+
+    local On = false
+    Track.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then
+            On = not On
+            Tween(Track, AnimFast, {
+                BackgroundColor3 = On and Theme.Accent or Color3.fromRGB(90,90,95)
+            })
+            Tween(Knob, AnimFast, {
+                Position = On and UDim2.new(1,-20,0.5,-9) or UDim2.new(0,2,0.5,-9)
+            })
+        end
+    end)
+end
+
+--================ SUB MENU ===========================
+local function SubMenu(parent, title)
+    local Open = false
+
+    local Group = Instance.new("Frame", parent)
+    Group.Size = UDim2.new(1,0,0,48)
+    Group.BackgroundColor3 = Theme.Glass
+    Group.BackgroundTransparency = 0.35
+    Group.BorderSizePixel = 0
+    Group.ClipsDescendants = true
+    Instance.new("UICorner", Group).CornerRadius = UDim.new(0,18)
+
+    local Header = Instance.new("TextButton", Group)
+    Header.Size = UDim2.new(1,-20,0,40)
+    Header.Position = UDim2.new(0,10,0,6)
+    Header.Text = "▸  "..title
+    Header.TextSize = 15
+    Header.TextXAlignment = Enum.TextXAlignment.Left
+    Header.TextColor3 = Theme.Text
+    Header.BackgroundTransparency = 1
+    Header.BorderSizePixel = 0
+
+    local Body = Instance.new("Frame", Group)
+    Body.Position = UDim2.new(0,10,0,50)
+    Body.Size = UDim2.new(1,-20,0,0)
+    Body.BackgroundTransparency = 1
+    Body.ClipsDescendants = true
+
+    Button(Body, "Action Button")
+    IOSToggle(Body, "Enable Feature")
+
+    Header.MouseButton1Click:Connect(function()
+        Open = not Open
+        Tween(Group, AnimSlow, {
+            Size = Open and UDim2.new(1,0,0,160) or UDim2.new(1,0,0,48)
+        })
+        Tween(Body, AnimSlow, {
+            Size = Open and UDim2.new(1,-20,0,100) or UDim2.new(1,-20,0,0)
+        })
+        Header.Text = (Open and "▾  " or "▸  ")..title
+    end)
+end
+
 --================ NAV BUTTON =========================
 local function Nav(icon,name)
     local B = Instance.new("TextButton", Sidebar)
     B.Size = UDim2.new(1,0,0,36)
     B.Text = icon.."  "..name
+    B.TextXAlignment = Enum.TextXAlignment.Left
     B.TextSize = 14
     B.TextColor3 = Theme.Text
-    B.TextXAlignment = Enum.TextXAlignment.Left
     B.BackgroundTransparency = 1
     B.BorderSizePixel = 0
     Instance.new("UICorner", B).CornerRadius = UDim.new(0,12)
-
-    local Pad = Instance.new("UIPadding", B)
-    Pad.PaddingLeft = UDim.new(0,12)
 
     B.MouseButton1Click:Connect(function()
         for _,p in pairs(Pages) do p.Visible=false end
@@ -179,6 +282,9 @@ local Menu = {
 for _,v in ipairs(Menu) do
     Page(v[2])
     Nav(v[1],v[2])
+    SubMenu(Pages[v[2]], "Aurora Control")
+    SubMenu(Pages[v[2]], "Nebula System")
+    SubMenu(Pages[v[2]], "Quantum Handler")
 end
 
 Pages["Fishing"].Visible = true

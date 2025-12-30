@@ -8,7 +8,7 @@ local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local LOGO_ID = "rbxassetid://120294742064292"
 
---================ TWEEN SERVICE (FIX ERROR) ===========
+--================ TWEEN SERVICE ======================
 local TweenService = game:GetService("TweenService")
 
 local function Tween(obj, info, props)
@@ -18,17 +18,8 @@ local function Tween(obj, info, props)
     return t
 end
 
-local AnimFast = TweenInfo.new(
-    0.18,
-    Enum.EasingStyle.Quint,
-    Enum.EasingDirection.Out
-)
-
-local AnimSlow = TweenInfo.new(
-    0.28,
-    Enum.EasingStyle.Quint,
-    Enum.EasingDirection.Out
-)
+local AnimFast = TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+local AnimSlow = TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 
 --================ UI PARENT ==========================
 local UIParent
@@ -133,10 +124,11 @@ local Pages, Buttons = {}, {}
 local function Page(name)
     local P = Instance.new("ScrollingFrame", Content)
     P.Size = UDim2.new(1,0,1,0)
-    P.CanvasSize = UDim2.new(0,0,0,420)
     P.ScrollBarImageTransparency = 1
     P.Visible = false
     P.BackgroundTransparency = 1
+    P.ClipsDescendants = true
+    P.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
     local L = Instance.new("UIListLayout", P)
     L.Padding = UDim.new(0,12)
@@ -193,12 +185,8 @@ local function IOSToggle(parent, text)
     Track.InputBegan:Connect(function(i)
         if i.UserInputType == Enum.UserInputType.MouseButton1 then
             On = not On
-            Tween(Track, AnimFast, {
-                BackgroundColor3 = On and Theme.Accent or Color3.fromRGB(90,90,95)
-            })
-            Tween(Knob, AnimFast, {
-                Position = On and UDim2.new(1,-20,0.5,-9) or UDim2.new(0,2,0.5,-9)
-            })
+            Tween(Track, AnimFast, {BackgroundColor3 = On and Theme.Accent or Color3.fromRGB(90,90,95)})
+            Tween(Knob, AnimFast, {Position = On and UDim2.new(1,-20,0.5,-9) or UDim2.new(0,2,0.5,-9)})
         end
     end)
 end
@@ -231,17 +219,18 @@ local function SubMenu(parent, title)
     Body.BackgroundTransparency = 1
     Body.ClipsDescendants = true
 
+    local BL = Instance.new("UIListLayout", Body)
+    BL.Padding = UDim.new(0,10)
+
     Button(Body, "Action Button")
     IOSToggle(Body, "Enable Feature")
 
     Header.MouseButton1Click:Connect(function()
         Open = not Open
-        Tween(Group, AnimSlow, {
-            Size = Open and UDim2.new(1,0,0,160) or UDim2.new(1,0,0,48)
-        })
-        Tween(Body, AnimSlow, {
-            Size = Open and UDim2.new(1,-20,0,100) or UDim2.new(1,-20,0,0)
-        })
+        local newHeight = Open and 160 or 48
+        local bodyHeight = Open and 100 or 0
+        Tween(Group, AnimSlow, {Size = UDim2.new(1,0,0,newHeight)})
+        Tween(Body, AnimSlow, {Size = UDim2.new(1,-20,0,bodyHeight)})
         Header.Text = (Open and "▾  " or "▸  ")..title
     end)
 end

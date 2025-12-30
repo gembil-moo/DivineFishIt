@@ -124,18 +124,22 @@ local Pages, Buttons = {}, {}
 local function Page(name)
     local P = Instance.new("ScrollingFrame", Content)
     P.Size = UDim2.new(1,0,1,0)
-    P.CanvasSize = UDim2.new(0,0,0,420)
     P.ScrollBarImageTransparency = 1
     P.Visible = false
     P.BackgroundTransparency = 1
+    P.BorderSizePixel = 0
 
     local L = Instance.new("UIListLayout", P)
     L.Padding = UDim.new(0,12)
+    L.SortOrder = Enum.SortOrder.LayoutOrder
 
     local Pad = Instance.new("UIPadding", P)
     Pad.PaddingTop = UDim.new(0,14)
     Pad.PaddingLeft = UDim.new(0,14)
     Pad.PaddingRight = UDim.new(0,14)
+
+    -- Biar otomatis canvas size menyesuaikan isi
+    P.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
     Pages[name] = P
 end
@@ -290,13 +294,14 @@ local function SubMenu(parent, menuTitle, dropdownTitle, dropdownOptions)
     Header.BorderSizePixel = 0
 
     local Body = Instance.new("Frame", Group)
-    Body.Position = UDim2.new(0,10,0,50)
     Body.Size = UDim2.new(1,-20,0,0)
+    Body.Position = UDim2.new(0,10,0,50)
     Body.BackgroundTransparency = 1
     Body.ClipsDescendants = true
 
     local BL = Instance.new("UIListLayout", Body)
     BL.Padding = UDim.new(0,10)
+    BL.SortOrder = Enum.SortOrder.LayoutOrder
 
     -- Judul menu di atas dropdown
     local TitleLabel = Instance.new("TextLabel", Body)
@@ -314,6 +319,7 @@ local function SubMenu(parent, menuTitle, dropdownTitle, dropdownOptions)
     IOSToggle(Body, "Enable Feature")
     Button(Body, "Apply")
 
+    -- Expand / collapse
     Header.MouseButton1Click:Connect(function()
         Open = not Open
         local newHeight = Open and 220 or 48
@@ -360,9 +366,9 @@ local Menu = {
 for _,v in ipairs(Menu) do
     Page(v[2])
     Nav(v[1],v[2])
-    SubMenu(Pages[v[2]], "Aurora Control", "Select Mode", {"Safe","Fast","Extreme"})
-    SubMenu(Pages[v[2]], "Nebula System", "Select Mode", {"Low","Medium","High"})
-    SubMenu(Pages[v[2]], "Quantum Handler", "Select Mode", {"Alpha","Beta","Gamma"})
+    SubMenu(Pages[v[2]], "1. Aurora Control", "Select Mode", {"Safe","Fast","Extreme"})
+    SubMenu(Pages[v[2]], "2. Nebula System", "Select Mode", {"Low","Medium","High"})
+    SubMenu(Pages[v[2]], "3. Quantum Handler", "Select Mode", {"Alpha","Beta","Gamma"})
 end
 
 Pages["Fishing"].Visible = true

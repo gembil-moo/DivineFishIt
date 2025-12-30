@@ -176,6 +176,71 @@ local function Radio(parent,text)
     R.TextXAlignment = Enum.TextXAlignment.Left
 end
 
+--================ EXTENDABLE SUB MENU =================
+local function SubMenu(parent, titleText)
+    local Open = false
+
+    local Wrap = Instance.new("Frame", parent)
+    Wrap.Size = UDim2.new(1,0,0,48)
+    Wrap.BackgroundTransparency = 1
+    Wrap.AutomaticSize = Enum.AutomaticSize.Y
+
+    local Header = Instance.new("TextButton", Wrap)
+    Header.Size = UDim2.new(1,0,0,42)
+    Header.Text = "▸  "..titleText
+    Header.TextSize = 15
+    Header.TextColor3 = Theme.Text
+    Header.BackgroundColor3 = Theme.Glass
+    Header.BackgroundTransparency = 0.3
+    Header.BorderSizePixel = 0
+    Header.AutoButtonColor = false
+    Instance.new("UICorner", Header).CornerRadius = UDim.new(0,14)
+
+    local Stroke = Instance.new("UIStroke", Header)
+    Stroke.Color = Theme.Stroke
+    Stroke.Transparency = 0.75
+
+    local Body = Instance.new("Frame", Wrap)
+    Body.Size = UDim2.new(1,-20,0,0)
+    Body.Position = UDim2.new(0,10,0,48)
+    Body.BackgroundTransparency = 1
+    Body.Visible = false
+    Body.AutomaticSize = Enum.AutomaticSize.Y
+
+    local BL = Instance.new("UIListLayout", Body)
+    BL.Padding = UDim.new(0,8)
+
+    -- Dropdown dummy
+    Dropdown(Body, "Select Mode")
+
+    -- Radio ON/OFF
+    local RadioBtn = Instance.new("TextButton", Body)
+    RadioBtn.Size = UDim2.new(1,-20,0,30)
+    RadioBtn.Position = UDim2.new(0,10,0,0)
+    RadioBtn.Text = "◉  Enabled"
+    RadioBtn.TextColor3 = Theme.Text
+    RadioBtn.TextSize = 14
+    RadioBtn.BackgroundTransparency = 1
+    RadioBtn.TextXAlignment = Enum.TextXAlignment.Left
+
+    local State = true
+    RadioBtn.MouseButton1Click:Connect(function()
+        State = not State
+        RadioBtn.Text = (State and "◉  Enabled" or "○  Disabled")
+    end)
+
+    -- Action Button
+    Button(Body, "Execute")
+
+    Header.MouseButton1Click:Connect(function()
+        Open = not Open
+        Body.Visible = Open
+        Header.Text = (Open and "▾  " or "▸  ") .. titleText
+    end)
+
+    return Wrap
+end
+
 --================ NAV BUTTON =========================
 local function Nav(icon,name)
     local B = Instance.new("TextButton", Sidebar)
@@ -212,13 +277,9 @@ for _,v in ipairs(Menu) do
     Page(v[2])
     Nav(v[1],v[2])
 
-    local C1 = GlassCard(Pages[v[2]],130)
-    Button(C1, v[2].." Button")
-    Dropdown(C1, v[2].." Dropdown")
-
-    local C2 = GlassCard(Pages[v[2]],110)
-    Radio(C2, v[2].." Option A")
-    Radio(C2, v[2].." Option B")
+    SubMenu(Pages[v[2]], "1 Aurora Control")
+    SubMenu(Pages[v[2]], "2 Nebula System")
+    SubMenu(Pages[v[2]], "3 Quantum Handler")
 end
 
 Pages["Fishing"].Visible = true

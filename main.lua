@@ -1,232 +1,209 @@
---=====================================
---  DELTA SAFE FULL FEATURE UI
---=====================================
-if _G.FishItUI then return end
-_G.FishItUI = true
+--==================================================
+--  DIVINE FISH IT - MODERN UI TEMPLATE (DELTA SAFE)
+--==================================================
+if _G.DivineFishIt then return end
+_G.DivineFishIt = true
 
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
---=====================================
---  UI PARENT (PROVEN)
---=====================================
+--================ THEME ===========================
+local Theme = {
+    Accent = Color3.fromRGB(90,160,255),
+    BG = Color3.fromRGB(18,18,22),
+    Sidebar = Color3.fromRGB(16,16,20),
+    Card = Color3.fromRGB(35,35,45),
+    Text = Color3.fromRGB(235,235,235),
+    SubText = Color3.fromRGB(170,170,170),
+    Trans = 0.08
+}
+
+--================ GUI PARENT ======================
 local UIParent
 pcall(function() UIParent = gethui() end)
-if not UIParent then UIParent = Player.PlayerGui end
+UIParent = UIParent or Player:WaitForChild("PlayerGui")
 
---=====================================
---  SCREEN GUI
---=====================================
-local Gui = Instance.new("ScreenGui")
-Gui.Name = "FishItUI"
+local Gui = Instance.new("ScreenGui", UIParent)
+Gui.Name = "DivineFishIt"
 Gui.ResetOnSpawn = false
-Gui.Parent = UIParent
 
---=====================================
---  STARTUP SPLASH
---=====================================
-local Splash = Instance.new("Frame", Gui)
+--================ SPLASH ==========================
+local Splash = Instance.new("TextLabel", Gui)
 Splash.Size = UDim2.fromScale(1,1)
-Splash.BackgroundColor3 = Color3.fromRGB(18,18,18)
-
-local SplashText = Instance.new("TextLabel", Splash)
-SplashText.Size = UDim2.new(1,0,0,80)
-SplashText.Position = UDim2.new(0,0,0.45,0)
-SplashText.BackgroundTransparency = 1
-SplashText.Text = "Fish It Script\nLoading UI..."
-SplashText.TextColor3 = Color3.new(1,1,1)
-SplashText.TextSize = 26
-SplashText.TextXAlignment = Enum.TextXAlignment.Center
-SplashText.TextYAlignment = Enum.TextYAlignment.Center
-
+Splash.BackgroundColor3 = Theme.BG
+Splash.Text = "Divine Fish It\nLoading..."
+Splash.TextColor3 = Theme.Text
+Splash.Font = Enum.Font.GothamMedium
+Splash.TextSize = 24
 task.wait(1)
 Splash:Destroy()
 
---=====================================
---  NOTIFICATION
---=====================================
-local NotifHolder = Instance.new("Frame", Gui)
-NotifHolder.Size = UDim2.new(0,260,1,0)
-NotifHolder.Position = UDim2.new(1,-270,0,10)
-NotifHolder.BackgroundTransparency = 1
+--================ MAIN ============================
+local Main = Instance.new("Frame", Gui)
+Main.Size = UDim2.new(0,580,0,360)
+Main.Position = UDim2.new(0.5,-290,0.5,-180)
+Main.BackgroundColor3 = Theme.BG
+Main.BackgroundTransparency = Theme.Trans
+Main.BorderSizePixel = 0
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0,14)
 
-local NL = Instance.new("UIListLayout", NotifHolder)
-NL.Padding = UDim.new(0,6)
+--================ TOP BAR (DRAG ONLY) ==============
+local Top = Instance.new("Frame", Main)
+Top.Size = UDim2.new(1,0,0,44)
+Top.BackgroundColor3 = Theme.BG
+Top.BackgroundTransparency = 0.05
+Top.BorderSizePixel = 0
+Instance.new("UICorner", Top).CornerRadius = UDim.new(0,14)
 
-local function Notify(title, msg)
-    local Box = Instance.new("Frame", NotifHolder)
-    Box.Size = UDim2.new(1,0,0,52)
-    Box.BackgroundColor3 = Color3.fromRGB(40,40,40)
-    Box.BorderSizePixel = 0
+local Title = Instance.new("TextLabel", Top)
+Title.Size = UDim2.new(1,-20,1,0)
+Title.Position = UDim2.new(0,12,0,0)
+Title.BackgroundTransparency = 1
+Title.Text = "Divine Fish It"
+Title.Font = Enum.Font.GothamMedium
+Title.TextSize = 16
+Title.TextColor3 = Theme.Text
+Title.TextXAlignment = Left
 
-    local T = Instance.new("TextLabel", Box)
-    T.Size = UDim2.new(1,-10,1,-10)
-    T.Position = UDim2.new(0,5,0,5)
-    T.BackgroundTransparency = 1
-    T.TextWrapped = true
-    T.TextXAlignment = Enum.TextXAlignment.Left
-    T.TextYAlignment = Enum.TextYAlignment.Top
-    T.Text = title.."\n"..msg
-    T.TextColor3 = Color3.new(1,1,1)
-    T.TextSize = 13
-
-    task.delay(3, function()
-        Box:Destroy()
+-- DRAG
+do
+    local dragging, dragStart, startPos
+    Top.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = i.Position
+            startPos = Main.Position
+        end
+    end)
+    Top.InputChanged:Connect(function(i)
+        if dragging and i.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = i.Position - dragStart
+            Main.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+    Top.InputEnded:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
     end)
 end
 
---=====================================
---  MAIN WINDOW
---=====================================
-local Main = Instance.new("Frame", Gui)
-Main.Size = UDim2.new(0,560,0,340)
-Main.Position = UDim2.new(0.5,-280,0.5,-170)
-Main.BackgroundColor3 = Color3.fromRGB(30,30,30)
-Main.BorderSizePixel = 0
-
---=====================================
---  HIDE / SHOW BUTTON
---=====================================
-local ToggleUI = Instance.new("TextButton", Gui)
-ToggleUI.Size = UDim2.new(0,70,0,28)
-ToggleUI.Position = UDim2.new(0,10,0.5,-14)
-ToggleUI.Text = "FishIt"
-ToggleUI.TextSize = 14
-ToggleUI.BackgroundColor3 = Color3.fromRGB(40,40,40)
-ToggleUI.TextColor3 = Color3.new(1,1,1)
-ToggleUI.BorderSizePixel = 0
-
-ToggleUI.MouseButton1Click:Connect(function()
-    Main.Visible = not Main.Visible
-end)
-
---=====================================
---  SIDEBAR
---=====================================
+--================ SIDEBAR =========================
 local Sidebar = Instance.new("Frame", Main)
-Sidebar.Size = UDim2.new(0,140,1,0)
-Sidebar.BackgroundColor3 = Color3.fromRGB(22,22,22)
+Sidebar.Position = UDim2.new(0,0,0,44)
+Sidebar.Size = UDim2.new(0,140,1,-44)
+Sidebar.BackgroundColor3 = Theme.Sidebar
+Sidebar.BackgroundTransparency = 0.1
 Sidebar.BorderSizePixel = 0
+Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0,12)
 
-local SPad = Instance.new("UIPadding", Sidebar)
-SPad.PaddingTop = UDim.new(0,10)
-SPad.PaddingLeft = UDim.new(0,8)
-SPad.PaddingRight = UDim.new(0,8)
+local SideLayout = Instance.new("UIListLayout", Sidebar)
+SideLayout.Padding = UDim.new(0,6)
+SideLayout.HorizontalAlignment = Center
 
-local SLayout = Instance.new("UIListLayout", Sidebar)
-SLayout.Padding = UDim.new(0,6)
-
---=====================================
---  CONTENT
---=====================================
+--================ CONTENT =========================
 local Content = Instance.new("Frame", Main)
-Content.Position = UDim2.new(0,140,0,0)
-Content.Size = UDim2.new(1,-140,1,0)
-Content.BackgroundColor3 = Color3.fromRGB(36,36,36)
-Content.BorderSizePixel = 0
+Content.Position = UDim2.new(0,140,0,44)
+Content.Size = UDim2.new(1,-140,1,-44)
+Content.BackgroundTransparency = 1
 
---=====================================
---  PAGE SYSTEM
---=====================================
-local Pages, Buttons = {}, {}
+local Pages = {}
+local Buttons = {}
 
+--================ PAGE ============================
 local function CreatePage(name)
     local Page = Instance.new("Frame", Content)
     Page.Size = UDim2.new(1,0,1,0)
     Page.Visible = false
     Page.BackgroundTransparency = 1
 
-    local Title = Instance.new("TextLabel", Page)
-    Title.Size = UDim2.new(1,-20,0,36)
-    Title.Position = UDim2.new(0,10,0,8)
-    Title.Text = name
-    Title.TextSize = 20
-    Title.TextColor3 = Color3.new(1,1,1)
-    Title.BackgroundTransparency = 1
-    Title.TextXAlignment = Enum.TextXAlignment.Left
+    local Grid = Instance.new("UIGridLayout", Page)
+    Grid.CellSize = UDim2.new(0,200,0,44)
+    Grid.CellPadding = UDim2.new(0,12,0,12)
+    Grid.StartCorner = Enum.StartCorner.TopLeft
+    Grid.HorizontalAlignment = Left
+    Grid.VerticalAlignment = Top
 
-    local Panel = Instance.new("Frame", Page)
-    Panel.Size = UDim2.new(1,-30,1,-60)
-    Panel.Position = UDim2.new(0,15,0,48)
-    Panel.BackgroundColor3 = Color3.fromRGB(45,45,45)
-    Panel.BorderSizePixel = 0
-
-    Pages[name] = Panel
+    Pages[name] = Page
 end
 
---=====================================
---  TOGGLE ELEMENT
---=====================================
-local function CreateToggle(parent, text)
-    local Holder = Instance.new("Frame", parent)
-    Holder.Size = UDim2.new(1,-20,0,34)
-    Holder.Position = UDim2.new(0,10,0,10)
-    Holder.BackgroundTransparency = 1
-
-    local Label = Instance.new("TextLabel", Holder)
-    Label.Size = UDim2.new(0.7,0,1,0)
-    Label.BackgroundTransparency = 1
-    Label.Text = text
-    Label.TextColor3 = Color3.new(1,1,1)
-    Label.TextSize = 14
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-
-    local Btn = Instance.new("TextButton", Holder)
-    Btn.Size = UDim2.new(0.25,0,0.7,0)
-    Btn.Position = UDim2.new(0.75,0,0.15,0)
-    Btn.Text = "OFF"
-    Btn.TextSize = 12
-    Btn.BackgroundColor3 = Color3.fromRGB(70,70,70)
-    Btn.TextColor3 = Color3.new(1,1,1)
-    Btn.BorderSizePixel = 0
-
-    local state = false
-    Btn.MouseButton1Click:Connect(function()
-        state = not state
-        Btn.Text = state and "ON" or "OFF"
-        Btn.BackgroundColor3 = state and Color3.fromRGB(90,160,90) or Color3.fromRGB(70,70,70)
-        Notify("Toggle", text.." : "..(state and "ON" or "OFF"))
-    end)
-end
-
---=====================================
---  NAV BUTTON
---=====================================
+--================ NAV =============================
 local function Nav(name)
     local B = Instance.new("TextButton", Sidebar)
-    B.Size = UDim2.new(1,0,0,34)
+    B.Size = UDim2.new(1,-16,0,36)
     B.Text = name
+    B.Font = Enum.Font.Gotham
     B.TextSize = 14
-    B.TextColor3 = Color3.new(1,1,1)
-    B.BackgroundColor3 = Color3.fromRGB(32,32,32)
+    B.TextColor3 = Theme.SubText
+    B.BackgroundTransparency = 1
     B.BorderSizePixel = 0
 
     B.MouseButton1Click:Connect(function()
-        for _,p in pairs(Pages) do p.Parent.Visible = false end
-        for _,b in pairs(Buttons) do b.BackgroundColor3 = Color3.fromRGB(32,32,32) end
-        Pages[name].Parent.Visible = true
-        B.BackgroundColor3 = Color3.fromRGB(60,60,60)
-        Notify("Menu", name.." opened")
+        for _,p in pairs(Pages) do p.Visible = false end
+        for _,b in pairs(Buttons) do b.TextColor3 = Theme.SubText end
+        Pages[name].Visible = true
+        B.TextColor3 = Theme.Accent
     end)
 
     Buttons[name] = B
 end
 
---=====================================
---  BUILD MENU
---=====================================
+--================ TOGGLE ==========================
+local function Toggle(parent, text)
+    local Box = Instance.new("Frame", parent)
+    Box.BackgroundColor3 = Theme.Card
+    Box.BackgroundTransparency = 0.15
+    Box.BorderSizePixel = 0
+    Instance.new("UICorner", Box).CornerRadius = UDim.new(0,10)
+
+    local Label = Instance.new("TextLabel", Box)
+    Label.Size = UDim2.new(1,-60,1,0)
+    Label.Position = UDim2.new(0,12,0,0)
+    Label.BackgroundTransparency = 1
+    Label.Text = text
+    Label.Font = Enum.Font.Gotham
+    Label.TextSize = 14
+    Label.TextColor3 = Theme.Text
+    Label.TextXAlignment = Left
+
+    local Switch = Instance.new("TextButton", Box)
+    Switch.Size = UDim2.new(0,40,0,20)
+    Switch.Position = UDim2.new(1,-52,0.5,-10)
+    Switch.Text = ""
+    Switch.BackgroundColor3 = Color3.fromRGB(70,70,70)
+    Switch.BorderSizePixel = 0
+    Instance.new("UICorner", Switch).CornerRadius = UDim.new(1,0)
+
+    local Dot = Instance.new("Frame", Switch)
+    Dot.Size = UDim2.new(0,16,0,16)
+    Dot.Position = UDim2.new(0,2,0.5,-8)
+    Dot.BackgroundColor3 = Color3.new(1,1,1)
+    Dot.BorderSizePixel = 0
+    Instance.new("UICorner", Dot).CornerRadius = UDim.new(1,0)
+
+    local on = false
+    Switch.MouseButton1Click:Connect(function()
+        on = not on
+        Switch.BackgroundColor3 = on and Theme.Accent or Color3.fromRGB(70,70,70)
+        Dot.Position = on and UDim2.new(1,-18,0.5,-8) or UDim2.new(0,2,0.5,-8)
+    end)
+end
+
+--================ BUILD ===========================
 local Menu = {"Fishing","Shop","Trade","Teleport","Quest","Config","Misc"}
 for _,v in ipairs(Menu) do
     CreatePage(v)
     Nav(v)
 end
 
--- SAMPLE TOGGLES
-CreateToggle(Pages["Fishing"], "Auto Fish")
-CreateToggle(Pages["Fishing"], "Auto Reel")
-CreateToggle(Pages["Misc"], "Anti AFK")
+Toggle(Pages.Fishing,"Auto Fish")
+Toggle(Pages.Fishing,"Auto Reel")
+Toggle(Pages.Misc,"Anti AFK")
 
-Pages["Fishing"].Parent.Visible = true
-Buttons["Fishing"].BackgroundColor3 = Color3.fromRGB(60,60,60)
-
-Notify("Fish It", "UI Loaded Successfully")
+Pages.Fishing.Visible = true
+Buttons.Fishing.TextColor3 = Theme.Accent

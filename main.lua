@@ -1,209 +1,218 @@
---==================================================
+--=====================================================
 --  DIVINE FISH IT - MODERN UI TEMPLATE (DELTA SAFE)
---==================================================
-if _G.DivineFishIt then return end
-_G.DivineFishIt = true
+--=====================================================
+if _G.DivineFishUI then return end
+_G.DivineFishUI = true
 
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
---================ THEME ===========================
-local Theme = {
-    Accent = Color3.fromRGB(90,160,255),
-    BG = Color3.fromRGB(18,18,22),
-    Sidebar = Color3.fromRGB(16,16,20),
-    Card = Color3.fromRGB(35,35,45),
-    Text = Color3.fromRGB(235,235,235),
-    SubText = Color3.fromRGB(170,170,170),
-    Trans = 0.08
-}
-
---================ GUI PARENT ======================
+--=====================================================
+--  UI PARENT (DELTA SAFE)
+--=====================================================
 local UIParent
 pcall(function() UIParent = gethui() end)
-UIParent = UIParent or Player:WaitForChild("PlayerGui")
+if not UIParent then UIParent = Player:WaitForChild("PlayerGui") end
 
-local Gui = Instance.new("ScreenGui", UIParent)
-Gui.Name = "DivineFishIt"
+--=====================================================
+--  THEME
+--=====================================================
+local Theme = {
+    Main = Color3.fromRGB(25,25,30),
+    Sidebar = Color3.fromRGB(18,18,22),
+    Content = Color3.fromRGB(32,32,38),
+    Card = Color3.fromRGB(40,40,48),
+    Accent = Color3.fromRGB(90,170,255),
+    Text = Color3.fromRGB(235,235,235),
+    SubText = Color3.fromRGB(170,170,170),
+    Stroke = Color3.fromRGB(60,60,70)
+}
+
+--=====================================================
+--  SCREEN GUI
+--=====================================================
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "DivineFishUI"
 Gui.ResetOnSpawn = false
+Gui.Parent = UIParent
 
---================ SPLASH ==========================
-local Splash = Instance.new("TextLabel", Gui)
-Splash.Size = UDim2.fromScale(1,1)
-Splash.BackgroundColor3 = Theme.BG
-Splash.Text = "Divine Fish It\nLoading..."
-Splash.TextColor3 = Theme.Text
-Splash.Font = Enum.Font.GothamMedium
-Splash.TextSize = 24
-task.wait(1)
-Splash:Destroy()
-
---================ MAIN ============================
+--=====================================================
+--  MAIN WINDOW
+--=====================================================
 local Main = Instance.new("Frame", Gui)
-Main.Size = UDim2.new(0,580,0,360)
-Main.Position = UDim2.new(0.5,-290,0.5,-180)
-Main.BackgroundColor3 = Theme.BG
-Main.BackgroundTransparency = Theme.Trans
+Main.Size = UDim2.new(0,640,0,380)
+Main.Position = UDim2.new(0.5,-320,0.5,-190)
+Main.BackgroundColor3 = Theme.Main
+Main.BackgroundTransparency = 0.05
 Main.BorderSizePixel = 0
+Main.Active = true
+Main.Draggable = true
+
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0,14)
+Instance.new("UIStroke", Main).Color = Theme.Stroke
 
---================ TOP BAR (DRAG ONLY) ==============
-local Top = Instance.new("Frame", Main)
-Top.Size = UDim2.new(1,0,0,44)
-Top.BackgroundColor3 = Theme.BG
-Top.BackgroundTransparency = 0.05
-Top.BorderSizePixel = 0
-Instance.new("UICorner", Top).CornerRadius = UDim.new(0,14)
+--=====================================================
+--  TOP BAR
+--=====================================================
+local TopBar = Instance.new("Frame", Main)
+TopBar.Size = UDim2.new(1,0,0,42)
+TopBar.BackgroundTransparency = 1
 
-local Title = Instance.new("TextLabel", Top)
+local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(1,-20,1,0)
 Title.Position = UDim2.new(0,12,0,0)
 Title.BackgroundTransparency = 1
-Title.Text = "Divine Fish It"
-Title.Font = Enum.Font.GothamMedium
-Title.TextSize = 16
+Title.Text = "Divine Fish It  |  Modern UI"
 Title.TextColor3 = Theme.Text
-Title.TextXAlignment = Left
+Title.TextSize = 16
+Title.TextXAlignment = Enum.TextXAlignment.Left
 
--- DRAG
-do
-    local dragging, dragStart, startPos
-    Top.InputBegan:Connect(function(i)
-        if i.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = i.Position
-            startPos = Main.Position
-        end
-    end)
-    Top.InputChanged:Connect(function(i)
-        if dragging and i.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = i.Position - dragStart
-            Main.Position = UDim2.new(
-                startPos.X.Scale,
-                startPos.X.Offset + delta.X,
-                startPos.Y.Scale,
-                startPos.Y.Offset + delta.Y
-            )
-        end
-    end)
-    Top.InputEnded:Connect(function(i)
-        if i.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
-        end
-    end)
-end
-
---================ SIDEBAR =========================
+--=====================================================
+--  SIDEBAR
+--=====================================================
 local Sidebar = Instance.new("Frame", Main)
-Sidebar.Position = UDim2.new(0,0,0,44)
-Sidebar.Size = UDim2.new(0,140,1,-44)
+Sidebar.Position = UDim2.new(0,0,0,42)
+Sidebar.Size = UDim2.new(0,140,1,-42)
 Sidebar.BackgroundColor3 = Theme.Sidebar
-Sidebar.BackgroundTransparency = 0.1
 Sidebar.BorderSizePixel = 0
-Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0,12)
+Sidebar.BackgroundTransparency = 0.1
 
-local SideLayout = Instance.new("UIListLayout", Sidebar)
-SideLayout.Padding = UDim.new(0,6)
-SideLayout.HorizontalAlignment = Center
+Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0,14)
 
---================ CONTENT =========================
+local SLayout = Instance.new("UIListLayout", Sidebar)
+SLayout.Padding = UDim.new(0,6)
+
+local SPad = Instance.new("UIPadding", Sidebar)
+SPad.PaddingTop = UDim.new(0,10)
+SPad.PaddingLeft = UDim.new(0,8)
+SPad.PaddingRight = UDim.new(0,8)
+
+--=====================================================
+--  CONTENT
+--=====================================================
 local Content = Instance.new("Frame", Main)
-Content.Position = UDim2.new(0,140,0,44)
-Content.Size = UDim2.new(1,-140,1,-44)
-Content.BackgroundTransparency = 1
+Content.Position = UDim2.new(0,140,0,42)
+Content.Size = UDim2.new(1,-140,1,-42)
+Content.BackgroundColor3 = Theme.Content
+Content.BackgroundTransparency = 0.05
+Content.BorderSizePixel = 0
 
-local Pages = {}
-local Buttons = {}
+Instance.new("UICorner", Content).CornerRadius = UDim.new(0,14)
 
---================ PAGE ============================
+--=====================================================
+--  PAGE SYSTEM
+--=====================================================
+local Pages, Buttons = {}, {}
+
 local function CreatePage(name)
-    local Page = Instance.new("Frame", Content)
+    local Page = Instance.new("ScrollingFrame", Content)
     Page.Size = UDim2.new(1,0,1,0)
+    Page.CanvasSize = UDim2.new(0,0,0,400)
+    Page.ScrollBarImageTransparency = 1
     Page.Visible = false
     Page.BackgroundTransparency = 1
 
-    local Grid = Instance.new("UIGridLayout", Page)
-    Grid.CellSize = UDim2.new(0,200,0,44)
-    Grid.CellPadding = UDim2.new(0,12,0,12)
-    Grid.StartCorner = Enum.StartCorner.TopLeft
-    Grid.HorizontalAlignment = Left
-    Grid.VerticalAlignment = Top
+    local Layout = Instance.new("UIListLayout", Page)
+    Layout.Padding = UDim.new(0,10)
+
+    local Pad = Instance.new("UIPadding", Page)
+    Pad.PaddingTop = UDim.new(0,14)
+    Pad.PaddingLeft = UDim.new(0,14)
+    Pad.PaddingRight = UDim.new(0,14)
 
     Pages[name] = Page
 end
 
---================ NAV =============================
+--=====================================================
+--  UI ELEMENTS
+--=====================================================
+local function Card(parent, height)
+    local C = Instance.new("Frame", parent)
+    C.Size = UDim2.new(1,0,0,height)
+    C.BackgroundColor3 = Theme.Card
+    C.BackgroundTransparency = 0.08
+    C.BorderSizePixel = 0
+    Instance.new("UICorner", C).CornerRadius = UDim.new(0,12)
+    Instance.new("UIStroke", C).Color = Theme.Stroke
+    return C
+end
+
+local function Button(parent, text)
+    local B = Instance.new("TextButton", parent)
+    B.Size = UDim2.new(1,-20,0,36)
+    B.Position = UDim2.new(0,10,0,10)
+    B.Text = text
+    B.TextColor3 = Theme.Text
+    B.TextSize = 14
+    B.BackgroundColor3 = Theme.Accent
+    B.BorderSizePixel = 0
+    Instance.new("UICorner", B).CornerRadius = UDim.new(0,10)
+end
+
+local function Dropdown(parent, text)
+    local D = Instance.new("TextButton", parent)
+    D.Size = UDim2.new(1,-20,0,36)
+    D.Position = UDim2.new(0,10,0,10)
+    D.Text = text .. " ▼"
+    D.TextColor3 = Theme.Text
+    D.TextSize = 14
+    D.BackgroundColor3 = Theme.Main
+    D.BorderSizePixel = 0
+    Instance.new("UICorner", D).CornerRadius = UDim.new(0,10)
+end
+
+local function Radio(parent, text)
+    local R = Instance.new("TextButton", parent)
+    R.Size = UDim2.new(1,-20,0,30)
+    R.Position = UDim2.new(0,10,0,10)
+    R.Text = "○  "..text
+    R.TextColor3 = Theme.Text
+    R.TextSize = 14
+    R.BackgroundTransparency = 1
+    R.TextXAlignment = Enum.TextXAlignment.Left
+end
+
+--=====================================================
+--  NAV BUTTON
+--=====================================================
 local function Nav(name)
     local B = Instance.new("TextButton", Sidebar)
-    B.Size = UDim2.new(1,-16,0,36)
+    B.Size = UDim2.new(1,0,0,34)
     B.Text = name
-    B.Font = Enum.Font.Gotham
     B.TextSize = 14
-    B.TextColor3 = Theme.SubText
-    B.BackgroundTransparency = 1
+    B.TextColor3 = Theme.Text
+    B.BackgroundColor3 = Theme.Sidebar
     B.BorderSizePixel = 0
+
+    Instance.new("UICorner", B).CornerRadius = UDim.new(0,8)
 
     B.MouseButton1Click:Connect(function()
         for _,p in pairs(Pages) do p.Visible = false end
-        for _,b in pairs(Buttons) do b.TextColor3 = Theme.SubText end
+        for _,b in pairs(Buttons) do b.BackgroundColor3 = Theme.Sidebar end
         Pages[name].Visible = true
-        B.TextColor3 = Theme.Accent
+        B.BackgroundColor3 = Theme.Card
     end)
 
     Buttons[name] = B
 end
 
---================ TOGGLE ==========================
-local function Toggle(parent, text)
-    local Box = Instance.new("Frame", parent)
-    Box.BackgroundColor3 = Theme.Card
-    Box.BackgroundTransparency = 0.15
-    Box.BorderSizePixel = 0
-    Instance.new("UICorner", Box).CornerRadius = UDim.new(0,10)
-
-    local Label = Instance.new("TextLabel", Box)
-    Label.Size = UDim2.new(1,-60,1,0)
-    Label.Position = UDim2.new(0,12,0,0)
-    Label.BackgroundTransparency = 1
-    Label.Text = text
-    Label.Font = Enum.Font.Gotham
-    Label.TextSize = 14
-    Label.TextColor3 = Theme.Text
-    Label.TextXAlignment = Left
-
-    local Switch = Instance.new("TextButton", Box)
-    Switch.Size = UDim2.new(0,40,0,20)
-    Switch.Position = UDim2.new(1,-52,0.5,-10)
-    Switch.Text = ""
-    Switch.BackgroundColor3 = Color3.fromRGB(70,70,70)
-    Switch.BorderSizePixel = 0
-    Instance.new("UICorner", Switch).CornerRadius = UDim.new(1,0)
-
-    local Dot = Instance.new("Frame", Switch)
-    Dot.Size = UDim2.new(0,16,0,16)
-    Dot.Position = UDim2.new(0,2,0.5,-8)
-    Dot.BackgroundColor3 = Color3.new(1,1,1)
-    Dot.BorderSizePixel = 0
-    Instance.new("UICorner", Dot).CornerRadius = UDim.new(1,0)
-
-    local on = false
-    Switch.MouseButton1Click:Connect(function()
-        on = not on
-        Switch.BackgroundColor3 = on and Theme.Accent or Color3.fromRGB(70,70,70)
-        Dot.Position = on and UDim2.new(1,-18,0.5,-8) or UDim2.new(0,2,0.5,-8)
-    end)
-end
-
---================ BUILD ===========================
+--=====================================================
+--  BUILD MENU
+--=====================================================
 local Menu = {"Fishing","Shop","Trade","Teleport","Quest","Config","Misc"}
+
 for _,v in ipairs(Menu) do
     CreatePage(v)
     Nav(v)
+
+    local C1 = Card(Pages[v], 130)
+    Button(C1, v.." Button")
+    Dropdown(C1, v.." Dropdown")
+
+    local C2 = Card(Pages[v], 110)
+    Radio(C2, v.." Option A")
+    Radio(C2, v.." Option B")
 end
 
-Toggle(Pages.Fishing,"Auto Fish")
-Toggle(Pages.Fishing,"Auto Reel")
-Toggle(Pages.Misc,"Anti AFK")
-
-Pages.Fishing.Visible = true
-Buttons.Fishing.TextColor3 = Theme.Accent
+Pages["Fishing"].Visible = true
+Buttons["Fishing"].BackgroundColor3 = Theme.Card
